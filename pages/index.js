@@ -1,11 +1,19 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import uuid from "uuid/v4";
 import StripeCheckout from "react-stripe-checkout";
 
+const amount = 200;
+const currency = "GBP";
+
 const onToken = token => {
-  console.log("hit");
-  fetch("/save-stripe-token", {
+  fetch("localhost:9000/purchase", {
     method: "POST",
-    body: JSON.stringify(token)
+    body: JSON.stringify({
+      amount,
+      currency,
+      idempotency_key: uuid(),
+      token
+    })
   }).then(response => {
     response.json().then(data => {
       alert(`We are in business, ${data.email}`);
@@ -23,12 +31,13 @@ export default () => {
       <button onClick={() => setCount(count + 1)}>Click me</button>
 
       <StripeCheckout
-        token={onToken}
-        stripeKey="pk_test_mWZk6aPfUsPtg5WtJ5wwDhy0"
-        name="ThoughtfulSMS"
+        amount={amount}
+        currency={currency}
         description="Weekly thoughtful messages via SMS"
-        amount={200}
-        currency="GBP"
+        image="https://stripe.com/img/documentation/checkout/marketplace.png"
+        name="ThoughtfulSMS"
+        stripeKey="pk_test_mWZk6aPfUsPtg5WtJ5wwDhy0"
+        token={onToken}
       />
     </div>
   );
