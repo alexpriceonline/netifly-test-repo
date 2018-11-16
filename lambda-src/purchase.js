@@ -9,7 +9,7 @@ const headers = {
 };
 
 exports.handler = function(event, context, callback) {
-  //-- We only care to do anything if this is our POST request.
+  // We only care to do anything if this is our POST request
   if (event.httpMethod !== "POST" || !event.body) {
     callback(null, {
       statusCode,
@@ -18,10 +18,10 @@ exports.handler = function(event, context, callback) {
     });
   }
 
-  //-- Parse the body contents into an object.
+  // Parse the body contents into an object
   const data = JSON.parse(event.body);
 
-  //-- Make sure we have all required data. Otherwise, escape.
+  // Make sure we have all required data. Otherwise, escape
   if (!data.token || !data.amount || !data.idempotency_key || !data.currency) {
     console.error("Required information is missing.");
 
@@ -34,21 +34,14 @@ exports.handler = function(event, context, callback) {
     return;
   }
 
-  console.log("log", {
-    currency: data.currency,
-    amount: data.amount,
-    source: data.token.id,
-    receipt_email: data.token.email,
-    description: "One year ThoughtfulSMS subscription"
-  });
-
   stripe.charges.create(
     {
       currency: data.currency,
       amount: data.amount,
       source: data.token.id,
       receipt_email: data.token.email,
-      description: "One year ThoughtfulSMS subscription"
+      description: "One year ThoughtfulSMS subscription",
+      metadata: data.metadata
     },
     {
       idempotency_key: data.idempotency_key
@@ -58,7 +51,7 @@ exports.handler = function(event, context, callback) {
         console.log(err);
       }
 
-      let status =
+      const status =
         charge === null || charge.status !== "succeeded"
           ? "failed"
           : charge.status;

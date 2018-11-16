@@ -5,20 +5,27 @@ import StripeCheckout from "react-stripe-checkout";
 const amount = 200;
 const currency = "GBP";
 
-const onToken = token => {
-  fetch("https://thoughtfulsms.com/.netlify/functions/purchase", {
+const onToken = metadata => token => {
+  fetch(`${process.env.LAMBDA_ENDPOINT}/purchase`, {
     method: "POST",
     body: JSON.stringify({
       amount,
       currency,
       idempotency_key: uuid(),
-      token
+      token,
+      metadata
     })
-  }).then(response => {
-    response.json().then(data => {
-      alert(`We are in business, ${data.email}`);
+  })
+    .then(response => {
+      console.log("response", response);
+      response.json().then(data => {
+        console.log("response data", data);
+        // alert(`We are in business, ${data.email}`);
+      });
+    })
+    .catch(err => {
+      console.log(err);
     });
-  });
 };
 
 export default () => {
@@ -36,8 +43,11 @@ export default () => {
         description="Weekly thoughtful messages via SMS"
         image="https://stripe.com/img/documentation/checkout/marketplace.png"
         name="ThoughtfulSMS"
-        stripeKey="pk_test_mWZk6aPfUsPtg5WtJ5wwDhy0"
-        token={onToken}
+        stripeKey={process.env.STRIPE_PUBLISHABLE_KEY}
+        token={onToken({
+          recipientFirstName: "Alex",
+          recipientPhoneNumber: "+447977336726"
+        })}
       />
     </div>
   );
