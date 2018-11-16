@@ -6,7 +6,7 @@ const amount = 200;
 const currency = "GBP";
 
 const onToken = token => {
-  fetch("localhost:9000/purchase", {
+  fetch(process.env.LAMBDA_ENDPOINT + "purchase", {
     method: "POST",
     body: JSON.stringify({
       amount,
@@ -36,7 +36,7 @@ export default () => {
         description="Weekly thoughtful messages via SMS"
         image="https://stripe.com/img/documentation/checkout/marketplace.png"
         name="ThoughtfulSMS"
-        stripeKey="pk_test_mWZk6aPfUsPtg5WtJ5wwDhy0"
+        stripeKey={process.env.STRIPE_PUBLISHABLE_KEY}
         token={onToken}
       />
     </div>
